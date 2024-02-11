@@ -1,5 +1,9 @@
+#include <stdlib.h>
+#include "Game.h"
+
 
 int main() {
-
-  return 0;
+  Game game;
+  game.start();
+  return EXIT_SUCCESS;
 }
