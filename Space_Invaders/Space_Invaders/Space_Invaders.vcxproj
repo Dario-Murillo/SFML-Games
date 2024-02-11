@@ -134,12 +134,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Gameplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Screenmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Gameplay.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Screenmanager.h" />
