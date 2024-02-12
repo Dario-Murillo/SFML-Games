@@ -7,13 +7,18 @@ void Gameplay::initVars() {
 }
 
 void Gameplay::updateHeroe() {
-  // TODO:
-  // Add window border collitions
   if (this->moveLeft) {
-	this->heroe->sprite.move(10.f, 0.f);
+	this->heroe->sprite.move(5.f, 0.f);
   }
-  if (this->moveRight) {
-	this->heroe->sprite.move(-10.f, 0.f);
+  if (this->moveRight && this->heroe->sprite.getPosition().x >= 0) {
+	this->heroe->sprite.move(-5.f, 0.f);
+  }
+  if (this->heroe->sprite.getPosition().x <= 0) {
+	this->heroe->sprite.setPosition(sf::Vector2f(1.f, static_cast<float> (this->gameManager->window->getSize().y) - this->heroe->sprite.getGlobalBounds().height));
+  }
+  if ((this->heroe->sprite.getPosition().x + this->heroe->sprite.getGlobalBounds().width) >= this->gameManager->window->getSize().x) {
+	this->heroe->sprite.setPosition(sf::Vector2f((this->gameManager->window->getSize().x - this->heroe->sprite.getGlobalBounds().width),
+	  static_cast<float> (this->gameManager->window->getSize().y) - this->heroe->sprite.getGlobalBounds().height));
   }
   this->moveRight = false;
   this->moveLeft = false;

@@ -16,9 +16,17 @@ void Game::initWindow() {
 
 void Game::start() {
   this->gameManager->screen_manager->addScreen(MENU, std::make_unique<Menu>(this->gameManager));
+
+  sf::Clock clock;
+  sf::Time time_since_last_frame = sf::Time::Zero;
+
   while (this->gameManager->window->isOpen()) {
-    this->gameManager->screen_manager->getCurrentScreen()->run();
+    time_since_last_frame += clock.restart();
+
+    while (time_since_last_frame > sf::seconds(1.f / 60.f)) {
+      time_since_last_frame -= sf::seconds(1.f / 60.f);
+      this->gameManager->screen_manager->getCurrentScreen()->run();
+    }
   }
 }
-
 
