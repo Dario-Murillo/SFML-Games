@@ -1,6 +1,8 @@
 #ifndef GAMEPLAY_H
 #define GAMEPLAY_H
 
+#include <sstream>
+#include "Enemie.h"
 #include "Game.h"
 #include "Spaceship.h"
 
@@ -18,17 +20,33 @@ private:
   bool moveRight;
   bool shoot;
 
+  // Text and Font
+  sf::Font font;
+  sf::Text points;
+
+  // Game Points
+  int point_count;
+
+  // Enemies
+  std::vector<std::unique_ptr<Enemie>> enemies;
+
   // Init functions
   void initVars();
   void initBullet();
+  void initText();
+  void initEnemies();
+
   // Update functions
   void updateHeroe();
   void spawnBullet();
   void updateBullets();
+  void updateText();
+  void updateEnemies();
 
   // Draw functions
   void drawBullets();
-
+  void drawText();
+  void drawEnemies();
 
 public:
   Gameplay(std::shared_ptr<Gamemanager>& gameMan);
@@ -40,8 +58,4 @@ public:
   void render() override;
 };
 
-
-
 #endif // !GAMEPLAY_H
-
-

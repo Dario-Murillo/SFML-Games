@@ -5,6 +5,7 @@ void Gameplay::initVars() {
   this->moveLeft = false;
   this->moveRight = false;
   this->shoot = false;
+  this->point_count = 0;
 }
 
 void Gameplay::initBullet() {
@@ -12,6 +13,38 @@ void Gameplay::initBullet() {
   this->bullet.setSize(sf::Vector2f(3.f, 15.f));
   this->bullet.setFillColor(sf::Color::Green);
 }
+
+void Gameplay::initText() {
+  if (!this->font.loadFromFile("Fonts/ARCADECLASSIC.ttf")) {
+	std::cerr << "Failed to load font" << std::endl;
+  }
+  this->points.setFont(this->font);
+  this->points.setCharacterSize(30);
+  this->points.setFillColor(sf::Color::White);
+  this->points.setString("Points: ");
+}
+
+void Gameplay::initEnemies() {
+  int type = 1;
+  float xPos = 10;
+  float yPos = this->points.getGlobalBounds().height + 20;
+  for (size_t cols = 1; cols <= 5; cols++) {
+	if (cols == 2 || cols == 3) {
+	  type = 2;
+	}
+	if (cols == 4 || cols == 5) {
+	  type = 3;
+	}
+	do {
+	  this->enemies.push_back(std::make_unique<Enemie>(type, this->gameManager, xPos, yPos));
+	  xPos += this->enemies[0]->sprite.getGlobalBounds().width;
+
+	} while ((xPos + this->enemies[0]->sprite.getGlobalBounds().width)  < this->gameManager->window->getSize().x);
+	yPos += this->enemies[cols]->sprite.getGlobalBounds().height;
+	xPos = 10;
+  }
+}
+
 
 void Gameplay::updateHeroe() {
   if (this->moveLeft) {
@@ -41,7 +74,7 @@ void Gameplay::spawnBullet() {
 }
 
 void Gameplay::updateBullets() {
-  if (shoot) {
+  if (this->shoot) {
 	this->spawnBullet();
   }
   this->shoot = false;
@@ -53,10 +86,26 @@ void Gameplay::updateBullets() {
   for (size_t i = 0; i < this->bullets.size(); i++) {
 	if (this->bullets[i].getPosition().y <= 0) {
 	  this->bullets.erase(this->bullets.begin() + i);
-	  std::cout << "deleted" << std::endl;
 	}
   }
 
+}
+
+void Gameplay::updateText() {
+  std::stringstream buff;
+  buff << "Points " << this->point_count;
+  this->points.setString(buff.str());
+}
+
+void Gameplay::updateEnemies() {
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	for (size_t k = 0; k < this->bullets.size(); k++) {
+	  if (enemies[i]->sprite.getGlobalBounds().intersects(this->bullets[k].getGlobalBounds())) {
+		this->enemies.erase(this->enemies.begin() + i);
+		this->bullets.erase(this->bullets.begin() + k);
+	  }
+	}
+  }
 }
 
 void Gameplay::drawBullets() {
@@ -65,10 +114,22 @@ void Gameplay::drawBullets() {
   }
 }
 
+void Gameplay::drawText() {
+  this->gameManager->window->draw(this->points);
+}
+
+void Gameplay::drawEnemies() {
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	this->gameManager->window->draw(this->enemies[i]->sprite);
+  }
+}
+
 Gameplay::Gameplay(std::shared_ptr<Gamemanager>& gameMan) : gameManager(gameMan) {
   this->heroe = std::make_unique<Spaceship>(this->gameManager);
   this->initVars();
   this->initBullet();
+  this->initText();
+  this->initEnemies();
 }
 
 Gameplay::~Gameplay() { }
@@ -107,12 +168,16 @@ void Gameplay::update() {
   this->poll();
   this->updateHeroe();
   this->updateBullets();
+  this->updateText();
+  this->updateEnemies();
 }
 
 void Gameplay::render() {
   this->gameManager->window->clear();
   this->gameManager->window->draw(this->heroe->sprite);
   this->drawBullets();
+  this->drawText();
+  this->drawEnemies();
   this->gameManager->window->display();
 }
 
