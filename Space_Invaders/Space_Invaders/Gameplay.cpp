@@ -4,6 +4,13 @@
 void Gameplay::initVars() {
   this->moveLeft = false;
   this->moveRight = false;
+  this->shoot = false;
+}
+
+void Gameplay::initBullet() {
+  this->bullet.setScale(1.f, 1.f);
+  this->bullet.setSize(sf::Vector2f(3.f, 15.f));
+  this->bullet.setFillColor(sf::Color::Green);
 }
 
 void Gameplay::updateHeroe() {
@@ -24,9 +31,44 @@ void Gameplay::updateHeroe() {
   this->moveLeft = false;
 }
 
+void Gameplay::spawnBullet() {
+  this->bullet.setPosition(sf::Vector2f(
+	this->heroe->sprite.getPosition().x + (this->heroe->sprite.getGlobalBounds().width / 2),
+	this->gameManager->window->getSize().y - this->heroe->sprite.getGlobalBounds().height));
+
+
+  this->bullets.push_back(this->bullet);
+}
+
+void Gameplay::updateBullets() {
+  if (shoot) {
+	this->spawnBullet();
+  }
+  this->shoot = false;
+  for (size_t i = 0; i < this->bullets.size(); i++) {
+	this->bullets[i].move(0.f, -2.f);
+  }
+
+  // If the bullet is off the screen we delete it
+  for (size_t i = 0; i < this->bullets.size(); i++) {
+	if (this->bullets[i].getPosition().y <= 0) {
+	  this->bullets.erase(this->bullets.begin() + i);
+	  std::cout << "deleted" << std::endl;
+	}
+  }
+
+}
+
+void Gameplay::drawBullets() {
+  for (size_t i = 0; i < this->bullets.size(); i++) {
+	this->gameManager->window->draw(this->bullets[i]);
+  }
+}
+
 Gameplay::Gameplay(std::shared_ptr<Gamemanager>& gameMan) : gameManager(gameMan) {
   this->heroe = std::make_unique<Spaceship>(this->gameManager);
   this->initVars();
+  this->initBullet();
 }
 
 Gameplay::~Gameplay() { }
@@ -53,6 +95,10 @@ void Gameplay::poll() {
 	  if (ev.key.code == sf::Keyboard::X) {
 		this->moveRight = true;
 	  }
+	  if (ev.key.code == sf::Keyboard::Space) {
+		this->shoot = true;
+	  }
+	  break;
 	}
   }
 }
@@ -60,11 +106,13 @@ void Gameplay::poll() {
 void Gameplay::update() {
   this->poll();
   this->updateHeroe();
+  this->updateBullets();
 }
 
 void Gameplay::render() {
   this->gameManager->window->clear();
   this->gameManager->window->draw(this->heroe->sprite);
+  this->drawBullets();
   this->gameManager->window->display();
 }
 
