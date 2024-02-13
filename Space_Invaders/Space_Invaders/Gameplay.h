@@ -9,9 +9,12 @@
 class Gameplay : public Screen {
 
 private:
+  // Shared pointer
   std::shared_ptr<Gamemanager>& gameManager;
-  // Heroe and bullets
+  // Heroe
   std::unique_ptr<Spaceship> heroe;
+
+  // Bullets
   std::vector<sf::RectangleShape> bullets;
   sf::RectangleShape bullet;
 
@@ -39,7 +42,9 @@ private:
   // Update functions
   void updateHeroe();
   void spawnBullet();
+  void spawnEnemieBullet();
   void updateBullets();
+  void updateEnemieBullets();
   void updateText();
   void updateEnemies();
 
@@ -47,6 +52,7 @@ private:
   void drawBullets();
   void drawText();
   void drawEnemies();
+  void drawEnemieBullets();
 
 public:
   Gameplay(std::shared_ptr<Gamemanager>& gameMan);

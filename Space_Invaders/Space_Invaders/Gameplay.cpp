@@ -12,6 +12,7 @@ void Gameplay::initBullet() {
   this->bullet.setScale(1.f, 1.f);
   this->bullet.setSize(sf::Vector2f(3.f, 15.f));
   this->bullet.setFillColor(sf::Color::Green);
+
 }
 
 void Gameplay::initText() {
@@ -22,6 +23,7 @@ void Gameplay::initText() {
   this->points.setCharacterSize(30);
   this->points.setFillColor(sf::Color::White);
   this->points.setString("Points: ");
+  this->points.setOrigin(-20.f, 0.f);
 }
 
 void Gameplay::initEnemies() {
@@ -73,22 +75,46 @@ void Gameplay::spawnBullet() {
   this->bullets.push_back(this->bullet);
 }
 
+void Gameplay::spawnEnemieBullet() {
+  int choose = rand() % this->enemies.size();;
+  // If the enemie is not null
+  if (this->enemies[choose] != nullptr && this->enemies[choose]->already_shoot == false) {
+	this->enemies[choose]->bullet.setPosition(sf::Vector2f(
+	  this->enemies[choose]->sprite.getPosition().x + (this->enemies[choose]->sprite.getGlobalBounds().width / 2),
+	  0.f));
+	this->enemies[choose]->already_shoot = true;
+  }
+}
+
 void Gameplay::updateBullets() {
   if (this->shoot) {
 	this->spawnBullet();
   }
   this->shoot = false;
   for (size_t i = 0; i < this->bullets.size(); i++) {
-	this->bullets[i].move(0.f, -2.f);
+	if (this->enemies[i]->can_move) {
+	  this->bullets[i].move(0.f, -2.f);
+	}
   }
+}
 
-  // If the bullet is off the screen we delete it
-  for (size_t i = 0; i < this->bullets.size(); i++) {
-	if (this->bullets[i].getPosition().y <= 0) {
-	  this->bullets.erase(this->bullets.begin() + i);
+void Gameplay::updateEnemieBullets() {
+  this->spawnEnemieBullet();
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	if (enemies[i] != nullptr) {
+	  this->enemies[i]->bullet.move(0.f, 2.f);
 	}
   }
 
+  // If the bullet is offscreen we delete it
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	if (enemies[i] != nullptr) {
+	  if (this->enemies[i]->bullet.getPosition().y >= this->gameManager->window->getSize().y) {
+		this->enemies[i]->can_move = false;
+		this->enemies[i]->already_shoot = false;
+	  }
+	}
+  }
 }
 
 void Gameplay::updateText() {
@@ -98,14 +124,22 @@ void Gameplay::updateText() {
 }
 
 void Gameplay::updateEnemies() {
+  // Check if a bullet hit an enemie
   for (size_t i = 0; i < this->enemies.size(); i++) {
 	for (size_t k = 0; k < this->bullets.size(); k++) {
 	  if (enemies[i]->sprite.getGlobalBounds().intersects(this->bullets[k].getGlobalBounds())) {
+		this->point_count += this->enemies[i]->valuePoints;
 		this->enemies.erase(this->enemies.begin() + i);
 		this->bullets.erase(this->bullets.begin() + k);
 	  }
 	}
   }
+  // If the bullet is out of the screen we delete it
+  for (size_t i = 0; i < this->bullets.size(); i++) {
+	if (this->bullets[i].getPosition().y <= 0) {
+	  this->bullets.erase(this->bullets.begin() + i);
+	}
+  }  
 }
 
 void Gameplay::drawBullets() {
@@ -121,6 +155,14 @@ void Gameplay::drawText() {
 void Gameplay::drawEnemies() {
   for (size_t i = 0; i < this->enemies.size(); i++) {
 	this->gameManager->window->draw(this->enemies[i]->sprite);
+  }
+}
+
+void Gameplay::drawEnemieBullets() {
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	if (this->enemies[i] != nullptr) {
+	  this->gameManager->window->draw(this->enemies[i]->bullet);
+	}
   }
 }
 
@@ -170,6 +212,7 @@ void Gameplay::update() {
   this->updateBullets();
   this->updateText();
   this->updateEnemies();
+  this->updateEnemieBullets();
 }
 
 void Gameplay::render() {
@@ -178,6 +221,7 @@ void Gameplay::render() {
   this->drawBullets();
   this->drawText();
   this->drawEnemies();
+  this->drawEnemieBullets();
   this->gameManager->window->display();
 }
 

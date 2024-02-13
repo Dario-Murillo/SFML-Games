@@ -1,6 +1,11 @@
 #include "Enemie.h"
 
 Enemie::Enemie(int type, std::shared_ptr<Gamemanager>& gameMan, float x, float y) : gameManager(gameMan), valuePoints(0), x(x), y(y) {
+  this->already_shoot = false;
+  this->can_move = true;
+  this->bullet.setScale(1.f, 1.f);
+  this->bullet.setSize(sf::Vector2f(3.f, 15.f));
+  this->bullet.setFillColor(sf::Color::Red);
   switch (type) {
   case 1:
     if (this->texture.loadFromFile("Images/alien1.png")) {
