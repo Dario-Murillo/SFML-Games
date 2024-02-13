@@ -18,11 +18,6 @@ private:
   std::vector<sf::RectangleShape> bullets;
   sf::RectangleShape bullet;
 
-  // Boolean movement function
-  bool moveLeft;
-  bool moveRight;
-  bool shoot;
-
   // Text and Font
   sf::Font font;
   sf::Text points;
@@ -32,6 +27,9 @@ private:
 
   // Enemies
   std::vector<std::unique_ptr<Enemie>> enemies;
+
+  // Held
+  bool shootHeld;
 
   // Init functions
   void initVars();
@@ -49,10 +47,10 @@ private:
   void updateEnemies();
 
   // Draw functions
-  void drawBullets();
-  void drawText();
-  void drawEnemies();
-  void drawEnemieBullets();
+  void drawBullets(sf::RenderTarget& target);
+  void drawText(sf::RenderTarget& target);
+  void drawEnemies(sf::RenderTarget& target);
+  void drawEnemieBullets(sf::RenderTarget& target);
 
 public:
   Gameplay(std::shared_ptr<Gamemanager>& gameMan);

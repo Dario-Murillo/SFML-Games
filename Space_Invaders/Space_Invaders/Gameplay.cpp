@@ -2,10 +2,8 @@
 
 
 void Gameplay::initVars() {
-  this->moveLeft = false;
-  this->moveRight = false;
-  this->shoot = false;
   this->point_count = 0;
+  this->shootHeld = false;
 }
 
 void Gameplay::initBullet() {
@@ -49,11 +47,11 @@ void Gameplay::initEnemies() {
 
 
 void Gameplay::updateHeroe() {
-  if (this->moveLeft) {
-	this->heroe->sprite.move(5.f, 0.f);
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+	this->heroe->sprite.move(2.f, 0.f);
   }
-  if (this->moveRight && this->heroe->sprite.getPosition().x >= 0) {
-	this->heroe->sprite.move(-5.f, 0.f);
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::X)) {
+	this->heroe->sprite.move(-2.f, 0.f);
   }
   if (this->heroe->sprite.getPosition().x <= 0) {
 	this->heroe->sprite.setPosition(sf::Vector2f(1.f, static_cast<float> (this->gameManager->window->getSize().y) - this->heroe->sprite.getGlobalBounds().height));
@@ -62,8 +60,6 @@ void Gameplay::updateHeroe() {
 	this->heroe->sprite.setPosition(sf::Vector2f((this->gameManager->window->getSize().x - this->heroe->sprite.getGlobalBounds().width),
 	  static_cast<float> (this->gameManager->window->getSize().y) - this->heroe->sprite.getGlobalBounds().height));
   }
-  this->moveRight = false;
-  this->moveLeft = false;
 }
 
 void Gameplay::spawnBullet() {
@@ -87,13 +83,30 @@ void Gameplay::spawnEnemieBullet() {
 }
 
 void Gameplay::updateBullets() {
-  if (this->shoot) {
-	this->spawnBullet();
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+	if (this->shootHeld == false) {
+	  this->shootHeld = true;
+  	  this->spawnBullet();
+	}
+  } else {
+	this->shootHeld = false;
   }
-  this->shoot = false;
+
+  // If the bullet is out of the screen we delete it
   for (size_t i = 0; i < this->bullets.size(); i++) {
-	if (this->enemies[i]->can_move) {
-	  this->bullets[i].move(0.f, -2.f);
+	this->bullets[i].move(0.f, -2.f);
+	if (this->bullets[i].getPosition().y <= 0) {
+	  this->bullets.erase(this->bullets.begin() + i);
+	}
+  }
+
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	for (size_t k = 0; k < this->bullets.size(); k++) {
+	  if (enemies[i]->sprite.getGlobalBounds().intersects(this->bullets[k].getGlobalBounds())) {
+		this->point_count += this->enemies[i]->valuePoints;
+		this->enemies.erase(this->enemies.begin() + i);
+		this->bullets.erase(this->bullets.begin() + k);
+	  }
 	}
   }
 }
@@ -125,44 +138,28 @@ void Gameplay::updateText() {
 
 void Gameplay::updateEnemies() {
   // Check if a bullet hit an enemie
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	for (size_t k = 0; k < this->bullets.size(); k++) {
-	  if (enemies[i]->sprite.getGlobalBounds().intersects(this->bullets[k].getGlobalBounds())) {
-		this->point_count += this->enemies[i]->valuePoints;
-		this->enemies.erase(this->enemies.begin() + i);
-		this->bullets.erase(this->bullets.begin() + k);
-	  }
-	}
-  }
-  // If the bullet is out of the screen we delete it
-  for (size_t i = 0; i < this->bullets.size(); i++) {
-	if (this->bullets[i].getPosition().y <= 0) {
-	  this->bullets.erase(this->bullets.begin() + i);
-	}
-  }  
+
 }
 
-void Gameplay::drawBullets() {
-  for (size_t i = 0; i < this->bullets.size(); i++) {
-	this->gameManager->window->draw(this->bullets[i]);
+void Gameplay::drawBullets(sf::RenderTarget& target) {
+  for (auto& bullet : this->bullets) {
+	target.draw(bullet);
   }
 }
 
-void Gameplay::drawText() {
-  this->gameManager->window->draw(this->points);
+void Gameplay::drawText(sf::RenderTarget& target) {
+  target.draw(this->points);
 }
 
-void Gameplay::drawEnemies() {
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	this->gameManager->window->draw(this->enemies[i]->sprite);
+void Gameplay::drawEnemies(sf::RenderTarget& target) {
+  for (auto& enemie : this->enemies ) {
+	target.draw(enemie->sprite);
   }
 }
 
-void Gameplay::drawEnemieBullets() {
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	if (this->enemies[i] != nullptr) {
-	  this->gameManager->window->draw(this->enemies[i]->bullet);
-	}
+void Gameplay::drawEnemieBullets(sf::RenderTarget& target) {
+  for (auto &eBullet : this->enemies) {
+	target.draw(eBullet->bullet);
   }
 }
 
@@ -191,17 +188,8 @@ void Gameplay::poll() {
 	case sf::Event::KeyPressed:
 	  if (ev.key.code == sf::Keyboard::Escape) {
 		this->gameManager->window->close();
+		break;
 	  }
-	  if (ev.key.code == sf::Keyboard::Z) {
-		this->moveLeft = true;
-	  }
-	  if (ev.key.code == sf::Keyboard::X) {
-		this->moveRight = true;
-	  }
-	  if (ev.key.code == sf::Keyboard::Space) {
-		this->shoot = true;
-	  }
-	  break;
 	}
   }
 }
@@ -209,19 +197,19 @@ void Gameplay::poll() {
 void Gameplay::update() {
   this->poll();
   this->updateHeroe();
+  this->updateEnemies();
   this->updateBullets();
   this->updateText();
-  this->updateEnemies();
-  this->updateEnemieBullets();
+  // this->updateEnemieBullets();
 }
 
 void Gameplay::render() {
   this->gameManager->window->clear();
   this->gameManager->window->draw(this->heroe->sprite);
-  this->drawBullets();
-  this->drawText();
-  this->drawEnemies();
-  this->drawEnemieBullets();
+  this->drawEnemies(*this->gameManager->window);
+  this->drawBullets(*this->gameManager->window);
+  this->drawText(*this->gameManager->window);
+  // this->drawEnemieBullets(*this->gameManager->window);
   this->gameManager->window->display();
 }
 
