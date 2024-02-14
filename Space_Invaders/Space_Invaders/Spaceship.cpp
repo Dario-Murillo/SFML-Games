@@ -6,7 +6,7 @@ Spaceship::Spaceship(std::shared_ptr<Gamemanager>& gameMan) : gameManager(gameMa
     // Handle error
   }
   this->sprite.setTexture(this->texture);
-  this->sprite.setScale(sf::Vector2f(.1, .1));
+  this->sprite.setScale(sf::Vector2f(.05, .05));
   this->sprite.setPosition( static_cast<float> (this->gameManager->window->getSize().x / 2), 
                             static_cast<float> (this->gameManager->window->getSize().y) - this->sprite.getGlobalBounds().height);
 }

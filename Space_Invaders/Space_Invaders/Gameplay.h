@@ -18,6 +18,16 @@ private:
   std::vector<sf::RectangleShape> bullets;
   sf::RectangleShape bullet;
 
+  // Enemie bullets and timer to shoot;
+  std::vector<sf::RectangleShape> enemie_bullets;
+  sf::RectangleShape enemie_bullet;
+  sf::Clock enemie_bullet_clock;
+  sf::Time time_since_last_bullet;
+  sf::Time delta_time;
+  bool spawn_enemie_bullet;
+  float enemie_y_speed;
+  float enemie_x_speed;
+
   // Text and Font
   sf::Font font;
   sf::Text points;
@@ -48,7 +58,7 @@ private:
 
   // Draw functions
   void drawBullets(sf::RenderTarget& target);
-  void drawText(sf::RenderTarget& target);
+  void drawText(sf::RenderTarget& target) const;
   void drawEnemies(sf::RenderTarget& target);
   void drawEnemieBullets(sf::RenderTarget& target);
 

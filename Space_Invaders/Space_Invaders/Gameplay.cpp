@@ -1,9 +1,13 @@
 #include "Gameplay.h"
 
+constexpr float ENEMIE_WIDTH = 28.9;
 
 void Gameplay::initVars() {
   this->point_count = 0;
   this->shootHeld = false;
+  this->spawn_enemie_bullet = false;
+  this->enemie_x_speed = 1;
+  this->enemie_y_speed = 0;
 }
 
 void Gameplay::initBullet() {
@@ -11,6 +15,11 @@ void Gameplay::initBullet() {
   this->bullet.setSize(sf::Vector2f(3.f, 15.f));
   this->bullet.setFillColor(sf::Color::Green);
 
+  this->enemie_bullet.setScale(1.f, 1.f);
+  this->enemie_bullet.setSize(sf::Vector2f(3.f, 15.f));
+  this->enemie_bullet.setFillColor(sf::Color::Red);
+  this->time_since_last_bullet = sf::Time::Zero;
+  this->delta_time = sf::seconds(5.f);
 }
 
 void Gameplay::initText() {
@@ -26,22 +35,24 @@ void Gameplay::initText() {
 
 void Gameplay::initEnemies() {
   int type = 1;
-  float xPos = 10;
-  float yPos = this->points.getGlobalBounds().height + 20;
-  for (size_t cols = 1; cols <= 5; cols++) {
-	if (cols == 2 || cols == 3) {
+  float xPos = ENEMIE_WIDTH * 2;
+  float yPos = this->points.getGlobalBounds().height + 40;
+  for (size_t cols = 1; cols <= 8; cols++) {
+	if (cols <= 2) {
+	  type = 1;
+	}
+	if (cols >= 3 && cols <= 5) {
 	  type = 2;
 	}
-	if (cols == 4 || cols == 5) {
+	if (cols >= 6) {
 	  type = 3;
 	}
 	do {
 	  this->enemies.push_back(std::make_unique<Enemie>(type, this->gameManager, xPos, yPos));
-	  xPos += this->enemies[0]->sprite.getGlobalBounds().width;
-
-	} while ((xPos + this->enemies[0]->sprite.getGlobalBounds().width)  < this->gameManager->window->getSize().x);
+	  xPos += ENEMIE_WIDTH;
+	} while ((xPos + ENEMIE_WIDTH)  < (this->gameManager->window->getSize().x) - (ENEMIE_WIDTH));
 	yPos += this->enemies[cols]->sprite.getGlobalBounds().height;
-	xPos = 10;
+	xPos = ENEMIE_WIDTH * 2;
   }
 }
 
@@ -72,14 +83,13 @@ void Gameplay::spawnBullet() {
 }
 
 void Gameplay::spawnEnemieBullet() {
-  int choose = rand() % this->enemies.size();;
-  // If the enemie is not null
-  if (this->enemies[choose] != nullptr && this->enemies[choose]->already_shoot == false) {
-	this->enemies[choose]->bullet.setPosition(sf::Vector2f(
-	  this->enemies[choose]->sprite.getPosition().x + (this->enemies[choose]->sprite.getGlobalBounds().width / 2),
-	  0.f));
-	this->enemies[choose]->already_shoot = true;
-  }
+  // We choose a random enemie to "shoot" the bullet (we only need his coordinates to make it seem like he shot it)
+  int choose = rand() % this->enemies.size();
+  this->enemie_bullet.setPosition(sf::Vector2f(
+	this->enemies[choose]->sprite.getPosition().x + (this->enemies[choose]->sprite.getGlobalBounds().width / 2),
+	this->enemies[choose]->sprite.getPosition().y + (this->enemies[choose]->sprite.getGlobalBounds().height)));
+
+  this->enemie_bullets.push_back(this->enemie_bullet);
 }
 
 void Gameplay::updateBullets() {
@@ -112,22 +122,17 @@ void Gameplay::updateBullets() {
 }
 
 void Gameplay::updateEnemieBullets() {
-  this->spawnEnemieBullet();
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	if (enemies[i] != nullptr) {
-	  this->enemies[i]->bullet.move(0.f, 2.f);
+  if (this->spawn_enemie_bullet) {
+	this->spawnEnemieBullet();
+  }
+  for (size_t i = 0; i < this->enemie_bullets.size(); i++) {
+	this->enemie_bullets[i].move(0.f, 2.f);
+	if (this->enemie_bullets[i].getPosition().y > this->gameManager->window->getSize().y) {
+	  this->enemie_bullets.erase(this->enemie_bullets.begin() + i);
 	}
   }
 
-  // If the bullet is offscreen we delete it
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	if (enemies[i] != nullptr) {
-	  if (this->enemies[i]->bullet.getPosition().y >= this->gameManager->window->getSize().y) {
-		this->enemies[i]->can_move = false;
-		this->enemies[i]->already_shoot = false;
-	  }
-	}
-  }
+  // Then we need to check for collisions with the heroe
 }
 
 void Gameplay::updateText() {
@@ -137,8 +142,25 @@ void Gameplay::updateText() {
 }
 
 void Gameplay::updateEnemies() {
-  // Check if a bullet hit an enemie
 
+  this->enemie_y_speed = 0;
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+
+	if (this->enemies[i]->sprite.getPosition().x <= 0) {
+	  this->enemie_x_speed = 1.f;
+	  this->enemie_y_speed = 5.f;
+	}
+	if (this->enemies[i]->sprite.getPosition().x + this->enemies[i]->sprite.getGlobalBounds().width >= this->gameManager->window->getSize().x) {
+	  this->enemie_x_speed = -1.f;
+	  this->enemie_y_speed = 5.f;
+	}
+
+
+  }
+
+  for (size_t i = 0; i < this->enemies.size(); i++) {
+	this->enemies[i]->sprite.move(this->enemie_x_speed, this->enemie_y_speed);
+  }
 }
 
 void Gameplay::drawBullets(sf::RenderTarget& target) {
@@ -147,7 +169,7 @@ void Gameplay::drawBullets(sf::RenderTarget& target) {
   }
 }
 
-void Gameplay::drawText(sf::RenderTarget& target) {
+void Gameplay::drawText(sf::RenderTarget& target) const {
   target.draw(this->points);
 }
 
@@ -158,8 +180,8 @@ void Gameplay::drawEnemies(sf::RenderTarget& target) {
 }
 
 void Gameplay::drawEnemieBullets(sf::RenderTarget& target) {
-  for (auto &eBullet : this->enemies) {
-	target.draw(eBullet->bullet);
+  for (auto &eBullet : this->enemie_bullets) {
+	target.draw(eBullet);
   }
 }
 
@@ -181,6 +203,14 @@ void Gameplay::run() {
 void Gameplay::poll() {
   sf::Event ev;
   while (this->gameManager->window->pollEvent(ev)) {
+	this->time_since_last_bullet = this->enemie_bullet_clock.getElapsedTime();
+	this->spawn_enemie_bullet = false;
+	if (this->time_since_last_bullet > this->delta_time) {
+	  this->spawn_enemie_bullet = true;
+	  this->enemie_bullet_clock.restart();
+	  this->time_since_last_bullet = sf::Time::Zero;
+	}
+
 	switch (ev.type) {
 	case sf::Event::Closed:
 	  this->gameManager->window->close();
@@ -212,5 +242,3 @@ void Gameplay::render() {
   // this->drawEnemieBullets(*this->gameManager->window);
   this->gameManager->window->display();
 }
-
-
