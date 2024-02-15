@@ -6,7 +6,7 @@ void Gameplay::initVars() {
   this->point_count = 0;
   this->shootHeld = false;
   this->spawn_enemie_bullet = false;
-  this->enemie_x_speed = 1;
+  this->enemie_x_speed = 2;
   this->enemie_y_speed = 0;
 }
 
@@ -19,7 +19,7 @@ void Gameplay::initBullet() {
   this->enemie_bullet.setSize(sf::Vector2f(3.f, 15.f));
   this->enemie_bullet.setFillColor(sf::Color::Red);
   this->time_since_last_bullet = sf::Time::Zero;
-  this->delta_time = sf::seconds(5.f);
+  this->delta_time = sf::seconds(1/5.f);
 }
 
 void Gameplay::initText() {
@@ -31,6 +31,12 @@ void Gameplay::initText() {
   this->points.setFillColor(sf::Color::White);
   this->points.setString("Points: ");
   this->points.setOrigin(-20.f, 0.f);
+
+  this->lives.setFont(this->font);
+  this->lives.setCharacterSize(30);
+  this->lives.setFillColor(sf::Color::White);
+  this->lives.setString("Lives: ");
+  this->lives.setPosition(this->gameManager->window->getSize().x - this->lives.getGlobalBounds().width - 20, 0.f);
 }
 
 void Gameplay::initEnemies() {
@@ -110,12 +116,14 @@ void Gameplay::updateBullets() {
 	}
   }
 
-  for (size_t i = 0; i < this->enemies.size(); i++) {
-	for (size_t k = 0; k < this->bullets.size(); k++) {
+  bool deleted = false;
+  for (size_t i = 0; i < this->enemies.size() && deleted == false; i++) {
+	for (size_t k = 0; k < this->bullets.size() && deleted == false; k++) {
 	  if (enemies[i]->sprite.getGlobalBounds().intersects(this->bullets[k].getGlobalBounds())) {
 		this->point_count += this->enemies[i]->valuePoints;
 		this->enemies.erase(this->enemies.begin() + i);
 		this->bullets.erase(this->bullets.begin() + k);
+		deleted = true;
 	  }
 	}
   }
@@ -126,7 +134,7 @@ void Gameplay::updateEnemieBullets() {
 	this->spawnEnemieBullet();
   }
   for (size_t i = 0; i < this->enemie_bullets.size(); i++) {
-	this->enemie_bullets[i].move(0.f, 2.f);
+	this->enemie_bullets[i].move(0.f, 5.f);
 	if (this->enemie_bullets[i].getPosition().y > this->gameManager->window->getSize().y) {
 	  this->enemie_bullets.erase(this->enemie_bullets.begin() + i);
 	}
@@ -139,6 +147,11 @@ void Gameplay::updateText() {
   std::stringstream buff;
   buff << "Points " << this->point_count;
   this->points.setString(buff.str());
+
+  std::stringstream buff2;
+  buff2 << "Lives " << this->heroe->getLives();
+  this->lives.setString(buff2.str());
+  
 }
 
 void Gameplay::updateEnemies() {
@@ -147,19 +160,24 @@ void Gameplay::updateEnemies() {
   for (size_t i = 0; i < this->enemies.size(); i++) {
 
 	if (this->enemies[i]->sprite.getPosition().x <= 0) {
-	  this->enemie_x_speed = 1.f;
+	  this->enemie_x_speed = 2.f;
 	  this->enemie_y_speed = 5.f;
 	}
 	if (this->enemies[i]->sprite.getPosition().x + this->enemies[i]->sprite.getGlobalBounds().width >= this->gameManager->window->getSize().x) {
-	  this->enemie_x_speed = -1.f;
+	  this->enemie_x_speed = -2.f;
 	  this->enemie_y_speed = 5.f;
 	}
 
 
   }
-
+  // Check if any enemy is off the screen or if it is in the last line
   for (size_t i = 0; i < this->enemies.size(); i++) {
 	this->enemies[i]->sprite.move(this->enemie_x_speed, this->enemie_y_speed);
+	if (this->enemies[i]->sprite.getPosition().y + this->enemies[i]->sprite.getGlobalBounds().height > this->gameManager->window->getSize().y
+	  || this->enemies[i]->sprite.getGlobalBounds().intersects(this->heroe->sprite.getGlobalBounds())) {
+	  // Here you lose
+	  this->gameManager->screen_manager->addScreen(ENDSCREEN, std::make_unique<Endscreen>(this->gameManager, "You Lost"));
+	}
   }
 }
 
@@ -171,6 +189,7 @@ void Gameplay::drawBullets(sf::RenderTarget& target) {
 
 void Gameplay::drawText(sf::RenderTarget& target) const {
   target.draw(this->points);
+  target.draw(this->lives);
 }
 
 void Gameplay::drawEnemies(sf::RenderTarget& target) {
@@ -230,7 +249,7 @@ void Gameplay::update() {
   this->updateEnemies();
   this->updateBullets();
   this->updateText();
-  // this->updateEnemieBullets();
+  this->updateEnemieBullets();
 }
 
 void Gameplay::render() {
@@ -239,6 +258,6 @@ void Gameplay::render() {
   this->drawEnemies(*this->gameManager->window);
   this->drawBullets(*this->gameManager->window);
   this->drawText(*this->gameManager->window);
-  // this->drawEnemieBullets(*this->gameManager->window);
+  this->drawEnemieBullets(*this->gameManager->window);
   this->gameManager->window->display();
 }

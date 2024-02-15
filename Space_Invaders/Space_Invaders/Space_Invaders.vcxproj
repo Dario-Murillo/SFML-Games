@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Endscreen.cpp" />
     <ClCompile Include="Enemie.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Gameplay.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="Spaceship.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Endscreen.h" />
     <ClInclude Include="Enemie.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Gameplay.h" />

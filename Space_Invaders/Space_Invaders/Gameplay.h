@@ -2,6 +2,7 @@
 #define GAMEPLAY_H
 
 #include <sstream>
+#include "Endscreen.h"
 #include "Enemie.h"
 #include "Game.h"
 #include "Spaceship.h"
@@ -31,6 +32,7 @@ private:
   // Text and Font
   sf::Font font;
   sf::Text points;
+  sf::Text lives;
 
   // Game Points
   int point_count;

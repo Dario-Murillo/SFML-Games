@@ -7,8 +7,11 @@
 class Spaceship {
 
 private:
+  int lives;
   std::shared_ptr<Gamemanager>& gameManager;
 public:
+  int getLives() const;
+  void subLives();
   Spaceship(std::shared_ptr<Gamemanager>& gameMan);
   ~Spaceship();
   sf::Texture texture;

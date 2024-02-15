@@ -9,7 +9,8 @@
 /* Enumerates the state/screen of the game */
 enum State {
   MENU = 0,
-  GAMEPLAY = 1
+  GAMEPLAY = 1,
+  ENDSCREEN = 2
 };
 
 /* Class that manages the screens of the game, is responsible of adding, deleting and changing the screens */
