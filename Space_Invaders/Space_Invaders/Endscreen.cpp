@@ -22,7 +22,7 @@ void Endscreen::initText() {
   this->menuTitle.setOrigin(this->menuTitle.getGlobalBounds().width / 2, this->menuTitle.getGlobalBounds().height / 2);
   this->menuTitle.setPosition(
 	static_cast<float> (this->gameManager->window->getSize().x / 2),
-	static_cast<float> (this->gameManager->window->getSize().y / 2));
+	static_cast<float> (this->gameManager->window->getSize().y / 2) - 40);
 
 
   this->exitTitle.setFont(this->font);
@@ -58,6 +58,9 @@ void Endscreen::updateText() {
   if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 	if (this->exitTitle.getGlobalBounds().contains(this->mousePositionView)) {
 	  this->gameManager->window->close();
+	}
+	if (this->menuTitle.getGlobalBounds().contains(this->mousePositionView)) {
+	  this->gameManager->screen_manager->setcurrentScreen(MENU);
 	}
 
   }

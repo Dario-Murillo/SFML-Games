@@ -19,7 +19,6 @@ void Gameplay::initBullet() {
   this->enemie_bullet.setSize(sf::Vector2f(3.f, 15.f));
   this->enemie_bullet.setFillColor(sf::Color::Red);
   this->time_since_last_bullet = sf::Time::Zero;
-  this->delta_time = sf::seconds(1/5.f);
 }
 
 void Gameplay::initText() {
@@ -60,6 +59,7 @@ void Gameplay::initEnemies() {
 	yPos += this->enemies[cols]->sprite.getGlobalBounds().height;
 	xPos = ENEMIE_WIDTH * 2;
   }
+  this->originalSize = this->enemies.size();
 }
 
 
@@ -141,6 +141,12 @@ void Gameplay::updateEnemieBullets() {
   }
 
   // Then we need to check for collisions with the heroe
+  for (size_t i = 0; i < this->enemie_bullets.size(); i++) {
+	if (this->enemie_bullets[i].getGlobalBounds().intersects(this->heroe->sprite.getGlobalBounds())) {
+	  this->enemie_bullets.erase(this->enemie_bullets.begin() + i);
+	  this->heroe->subLives();
+	}
+  }
 }
 
 void Gameplay::updateText() {
@@ -157,6 +163,10 @@ void Gameplay::updateText() {
 void Gameplay::updateEnemies() {
 
   this->enemie_y_speed = 0;
+  // If there is 1/4 or less of the original enemies we speed up 
+  if (this->enemies.size() <= this->originalSize / 2) {
+	this->enemie_x_speed = this->enemie_x_speed * 1.1f;
+  }
   for (size_t i = 0; i < this->enemies.size(); i++) {
 
 	if (this->enemies[i]->sprite.getPosition().x <= 0) {
@@ -174,11 +184,17 @@ void Gameplay::updateEnemies() {
   for (size_t i = 0; i < this->enemies.size(); i++) {
 	this->enemies[i]->sprite.move(this->enemie_x_speed, this->enemie_y_speed);
 	if (this->enemies[i]->sprite.getPosition().y + this->enemies[i]->sprite.getGlobalBounds().height > this->gameManager->window->getSize().y
-	  || this->enemies[i]->sprite.getGlobalBounds().intersects(this->heroe->sprite.getGlobalBounds())) {
+	  || this->enemies[i]->sprite.getGlobalBounds().intersects(this->heroe->sprite.getGlobalBounds()) || this->heroe->getLives() <= 0) {
 	  // Here you lose
 	  this->gameManager->screen_manager->addScreen(ENDSCREEN, std::make_unique<Endscreen>(this->gameManager, "You Lost"));
 	}
   }
+
+  // If the enemie array is empty the player won
+  if (this->enemies.size() == 0) {
+	this->gameManager->screen_manager->addScreen(ENDSCREEN, std::make_unique<Endscreen>(this->gameManager, "You Won"));
+  }
+
 }
 
 void Gameplay::drawBullets(sf::RenderTarget& target) {
@@ -224,10 +240,11 @@ void Gameplay::poll() {
   while (this->gameManager->window->pollEvent(ev)) {
 	this->time_since_last_bullet = this->enemie_bullet_clock.getElapsedTime();
 	this->spawn_enemie_bullet = false;
-	if (this->time_since_last_bullet > this->delta_time) {
+	std::cout << this->time_since_last_bullet.asSeconds() << std::endl;
+	if (this->time_since_last_bullet > sf::seconds(5.f)) {
 	  this->spawn_enemie_bullet = true;
-	  this->enemie_bullet_clock.restart();
 	  this->time_since_last_bullet = sf::Time::Zero;
+	  this->enemie_bullet_clock.restart();
 	}
 
 	switch (ev.type) {

@@ -10,14 +10,14 @@
 enum State {
   MENU = 0,
   GAMEPLAY = 1,
-  ENDSCREEN = 2
+  ENDSCREEN = 2,
 };
 
 /* Class that manages the screens of the game, is responsible of adding, deleting and changing the screens */
 class Screenmanager {
 private:
-  /* Map that directs integers (from the enum) to unique pointers of instances of different screens */
   std::map<int, std::unique_ptr<Screen>> screen_map;
+  /* Map that directs integers (from the enum) to unique pointers of instances of different screens */
   /* Pivot that helps move and add instances of the new_screen. Necessary in order to move unique pointers */
   std::unique_ptr<Screen> new_screen;
   /* Integer that indicates the current state/screen that is being display */
@@ -43,6 +43,8 @@ public:
     the instance of the screen indicated my the member currentScreen
   */
   std::unique_ptr<Screen>& getCurrentScreen();
+  /* Changes current screen */
+  void setcurrentScreen(int new_screen);
   // Default constructor
   Screenmanager();
   // Destructor, clears the map so the unique pointers on it are out of the scope and are cleared
@@ -52,5 +54,3 @@ public:
 };
 
 #endif // !SCREENMANAGER_H
-
-

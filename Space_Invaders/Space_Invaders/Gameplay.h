@@ -21,10 +21,10 @@ private:
 
   // Enemie bullets and timer to shoot;
   std::vector<sf::RectangleShape> enemie_bullets;
+  int originalSize;
   sf::RectangleShape enemie_bullet;
   sf::Clock enemie_bullet_clock;
   sf::Time time_since_last_bullet;
-  sf::Time delta_time;
   bool spawn_enemie_bullet;
   float enemie_y_speed;
   float enemie_x_speed;
