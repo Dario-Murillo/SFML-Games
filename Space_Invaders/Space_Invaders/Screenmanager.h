@@ -11,6 +11,7 @@ enum State {
   MENU = 0,
   GAMEPLAY = 1,
   ENDSCREEN = 2,
+  PAUSE = 3
 };
 
 /* Class that manages the screens of the game, is responsible of adding, deleting and changing the screens */

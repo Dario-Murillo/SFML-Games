@@ -5,6 +5,7 @@
 #include "Endscreen.h"
 #include "Enemie.h"
 #include "Game.h"
+#include "Pause.h"
 #include "Spaceship.h"
 
 class Gameplay : public Screen {

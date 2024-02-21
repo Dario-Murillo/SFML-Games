@@ -240,7 +240,6 @@ void Gameplay::poll() {
   while (this->gameManager->window->pollEvent(ev)) {
 	this->time_since_last_bullet = this->enemie_bullet_clock.getElapsedTime();
 	this->spawn_enemie_bullet = false;
-	std::cout << this->time_since_last_bullet.asSeconds() << std::endl;
 	if (this->time_since_last_bullet > sf::seconds(5.f)) {
 	  this->spawn_enemie_bullet = true;
 	  this->time_since_last_bullet = sf::Time::Zero;
@@ -253,8 +252,7 @@ void Gameplay::poll() {
 	  break;
 	case sf::Event::KeyPressed:
 	  if (ev.key.code == sf::Keyboard::Escape) {
-		this->gameManager->window->close();
-		break;
+		this->gameManager->screen_manager->setcurrentScreen(PAUSE);
 	  }
 	}
   }

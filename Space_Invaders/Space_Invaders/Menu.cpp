@@ -59,7 +59,7 @@ void Menu::updateText() {
 	  this->gameManager->window->close();
 	}
 	if (this->playTitle.getGlobalBounds().contains(this->mousePositionView)) {
-	  this->gameManager->screen_manager->addScreen(1, std::make_unique<Gameplay>(this->gameManager));
+	  this->gameManager->screen_manager->addScreen(GAMEPLAY, std::make_unique<Gameplay>(this->gameManager));
 	}
   }
 }

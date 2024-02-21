@@ -139,6 +139,7 @@
     <ClCompile Include="Gameplay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="Pause.cpp" />
     <ClCompile Include="Screenmanager.cpp" />
     <ClCompile Include="Spaceship.cpp" />
   </ItemGroup>
@@ -148,6 +149,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Gameplay.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="Pause.h" />
     <ClInclude Include="Screen.h" />
     <ClInclude Include="Screenmanager.h" />
     <ClInclude Include="Spaceship.h" />

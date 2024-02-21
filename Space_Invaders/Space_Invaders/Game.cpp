@@ -15,6 +15,8 @@ void Game::initWindow() {
 }
 
 void Game::start() {
+  // Add constant states that won't change
+  this->gameManager->screen_manager->addScreen(PAUSE, std::make_unique<Pause>(this->gameManager));
   this->gameManager->screen_manager->addScreen(MENU, std::make_unique<Menu>(this->gameManager));
 
   while (this->gameManager->window->isOpen()) {
