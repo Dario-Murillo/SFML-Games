@@ -36,6 +36,11 @@ void Menu::initText() {
 
 }
 
+void Menu::initSprite() {
+  this->texture.loadFromFile("Images/stars.jpg");
+  this->background = sf::Sprite(this->texture);
+}
+
 void Menu::updateMousePositions() {
   this->mousePosition = sf::Mouse::getPosition(*this->gameManager->window);
   this->mousePositionView = this->gameManager->window->mapPixelToCoords(this->mousePosition);
@@ -64,9 +69,17 @@ void Menu::updateText() {
   }
 }
 
+void Menu::draw(sf::RenderTarget& target) const {
+  target.draw(this->background);
+  target.draw(this->mainTitle);
+  target.draw(this->playTitle);
+  target.draw(this->exitTitle);
+}
+
 Menu::Menu(std::shared_ptr<Gamemanager>& gameMan) : gameManager(gameMan) {
   this->initFonts();
   this->initText();
+  this->initSprite();
 }
 
 Menu::~Menu() {}
@@ -99,8 +112,6 @@ void Menu::update() {
 
 void Menu::render() {
   this->gameManager->window->clear();
-  this->gameManager->window->draw(this->mainTitle);
-  this->gameManager->window->draw(this->playTitle);
-  this->gameManager->window->draw(this->exitTitle);
+  this->draw(*this->gameManager->window);
   this->gameManager->window->display();
 }

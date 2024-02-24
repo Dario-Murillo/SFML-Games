@@ -7,6 +7,10 @@
 
 class Menu : public Screen {
 private:
+  // Background image
+  sf::Texture texture;
+  sf::Sprite background;
+
   // Shared pointer
   std::shared_ptr<Gamemanager> gameManager;
 
@@ -25,12 +29,16 @@ private:
   // Init functions
   void initFonts();
   void initText();
+  void initSprite();
 
 
   // Updates mouse position in the screen
   void updateMousePositions();
   // Updates text
   void updateText();
+
+  // Draws the text and background
+  void draw(sf::RenderTarget &target) const;
 public:
   Menu(std::shared_ptr<Gamemanager>& gameMan);
   ~Menu();
