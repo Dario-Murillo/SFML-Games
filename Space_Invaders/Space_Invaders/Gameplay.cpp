@@ -132,6 +132,9 @@ void Gameplay::updateBullets() {
 void Gameplay::updateEnemieBullets() {
   if (this->spawn_enemie_bullet) {
 	this->spawnEnemieBullet();
+	this->spawnEnemieBullet();
+	this->spawnEnemieBullet();
+	this->spawn_enemie_bullet = false;
   }
   for (size_t i = 0; i < this->enemie_bullets.size(); i++) {
 	this->enemie_bullets[i].move(0.f, 5.f);
@@ -239,10 +242,9 @@ void Gameplay::poll() {
   sf::Event ev;
   while (this->gameManager->window->pollEvent(ev)) {
 	this->time_since_last_bullet = this->enemie_bullet_clock.getElapsedTime();
-	this->spawn_enemie_bullet = false;
+	std::cout << this->time_since_last_bullet.asSeconds() << std::endl;
 	if (this->time_since_last_bullet > sf::seconds(5.f)) {
 	  this->spawn_enemie_bullet = true;
-	  this->time_since_last_bullet = sf::Time::Zero;
 	  this->enemie_bullet_clock.restart();
 	}
 
@@ -253,6 +255,9 @@ void Gameplay::poll() {
 	case sf::Event::KeyPressed:
 	  if (ev.key.code == sf::Keyboard::Escape) {
 		this->gameManager->screen_manager->setcurrentScreen(PAUSE);
+		this->enemie_bullet_clock.restart();
+		this->time_since_last_bullet = sf::seconds(0.f);
+		this->spawn_enemie_bullet = false;
 	  }
 	}
   }
