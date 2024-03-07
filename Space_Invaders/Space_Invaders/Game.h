@@ -32,11 +32,10 @@ private:
 public:
   // Starts the game
   void start();
-  // Constructor, calls the init funcionts and creates the shared pointer of gameManager
+  // Constructor, calls the init functions and creates the shared pointer of gameManager
   Game();
   // Default destructor
   ~Game();
 };
-
 
 #endif // !GAME_H

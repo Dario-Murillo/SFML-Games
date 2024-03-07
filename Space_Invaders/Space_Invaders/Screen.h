@@ -3,7 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
-/* Pure abstract class for inheritance*/
+/* Pure abstract class for inheritance
+  This class will be used for other classes to have the properties of a screen
+*/
 class Screen {
 public:
   /* Main method that is gonna call update and render*/
