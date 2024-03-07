@@ -69,7 +69,7 @@ void Menu::updateText() {
   }
 }
 
-void Menu::draw(sf::RenderTarget& target) const {
+void Menu::drawText(sf::RenderTarget& target) const {
   target.draw(this->background);
   target.draw(this->mainTitle);
   target.draw(this->playTitle);

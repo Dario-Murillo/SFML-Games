@@ -30,6 +30,8 @@ private:
   void updateMousePositions();
   // Updates text
   void updateText();
+  // Draws the text
+  void drawText(sf::RenderTarget &target);
 public:
   Endscreen(std::shared_ptr<Gamemanager> gameMan, std::string mainText);
   ~Endscreen();

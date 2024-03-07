@@ -66,6 +66,12 @@ void Endscreen::updateText() {
   }
 }
 
+void Endscreen::drawText(sf::RenderTarget& target) {
+  target.draw(this->mainTitle);
+  target.draw(this->menuTitle);
+  target.draw(this->exitTitle);
+}
+
 Endscreen::Endscreen(std::shared_ptr<Gamemanager> gameMan, std::string mainText) : gameManager(gameMan), mainText(mainText) {
   this->initFonts();
   this->initText();
@@ -101,9 +107,7 @@ void Endscreen::update() {
 
 void Endscreen::render() {
   this->gameManager->window->clear();
-  this->gameManager->window->draw(this->mainTitle);
-  this->gameManager->window->draw(this->menuTitle);
-  this->gameManager->window->draw(this->exitTitle);
+  this->drawText(*this->gameManager->window);
   this->gameManager->window->display();
 }
 

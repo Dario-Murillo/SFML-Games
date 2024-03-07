@@ -242,7 +242,6 @@ void Gameplay::poll() {
   sf::Event ev;
   while (this->gameManager->window->pollEvent(ev)) {
 	this->time_since_last_bullet = this->enemie_bullet_clock.getElapsedTime();
-	std::cout << this->time_since_last_bullet.asSeconds() << std::endl;
 	if (this->time_since_last_bullet > sf::seconds(5.f)) {
 	  this->spawn_enemie_bullet = true;
 	  this->enemie_bullet_clock.restart();

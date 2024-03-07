@@ -38,7 +38,7 @@ private:
   void updateText();
 
   // Draws the text and background
-  void draw(sf::RenderTarget &target) const;
+  void drawText(sf::RenderTarget &target) const;
 public:
   Menu(std::shared_ptr<Gamemanager>& gameMan);
   ~Menu();
